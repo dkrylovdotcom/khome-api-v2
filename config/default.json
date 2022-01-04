@@ -1,0 +1,27 @@
+{
+  "app": {
+    "webServer": {
+      "host": "192.168.0.5",
+      "port": 3000,
+      "jwt": {
+        "signature": "signature-of-jwt",
+        "expiration": "24h"
+      }
+    },
+    "mqttServer": {
+      "protocol": "mqtt://",
+      "host": "192.168.0.5"
+    }
+  },
+  "db": {
+    "url": "mongodb://127.0.0.1:27017/home"
+  },
+  "device": {
+    "scanOptions": {
+      "interval": 5000,
+      "pingTimeout": 1,
+      "pingCount": 2
+    },
+    "defaultTCPPort": 6666
+  }
+}
