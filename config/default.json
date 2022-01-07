@@ -8,10 +8,7 @@
         "expiration": "24h"
       }
     },
-    "mqttServer": {
-      "protocol": "mqtt://",
-      "host": "192.168.0.5"
-    }
+    "mqttHost": "mqtt://192.168.0.5"
   },
   "db": {
     "url": "mongodb://127.0.0.1:27017/home"
