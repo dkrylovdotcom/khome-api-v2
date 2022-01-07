@@ -14,22 +14,20 @@ export class DeviceCrudService {
   ) {}
 
   public async create(createDeviceDto: CreateDeviceDto) {
-    try {
-      const device = new this.deviceModel(createDeviceDto);
-      device.apiKey = this.generateApiKey();
-      await this.deviceRepository.save(device);
-    } catch (e) {
-      console.log(e);
-    }
+    const device = new this.deviceModel(createDeviceDto);
+    device.apiKey = this.generateApiKey();
+    await this.deviceRepository.save(device);
+    return device;
   }
 
   public async update(id: string, updateDeviceDto: UpdateDeviceDto) {
     const item = await this.deviceRepository.get(id);
-    item.locationId = updateDeviceDto.locationId;
-    item.mac = updateDeviceDto.mac;
-    item.type = updateDeviceDto.type;
-    item.minCriticalValue = updateDeviceDto.minCriticalValue;
-    item.maxCriticalValue = updateDeviceDto.maxCriticalValue;
+    item.locationId = updateDeviceDto.locationId || item.locationId;
+    item.deviceId = updateDeviceDto.deviceId || item.deviceId;
+    item.mac = updateDeviceDto.mac || item.mac;
+    item.type = updateDeviceDto.type || item.type;
+    item.minCriticalValue = updateDeviceDto.minCriticalValue || item.minCriticalValue;
+    item.maxCriticalValue = updateDeviceDto.maxCriticalValue || item.maxCriticalValue;
     await this.deviceRepository.save(item);
   }
 

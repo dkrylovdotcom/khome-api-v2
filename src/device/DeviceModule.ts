@@ -9,12 +9,13 @@ import { DeviceCrudService } from './services/DeviceCrudService';
 import { DeviceRepository } from './repositories/DeviceRepository';
 import { DeviceDataRepository } from './repositories/DeviceDataRepository';
 import { DeviceControlService } from './services/DeviceControlService';
-import { Device, DeviceSchema, DeviceDocument } from './schemas/DeviceSchema';
+import { Device, DeviceSchema } from './schemas/DeviceSchema';
 import { DeviceData, DeviceDataSchema } from './schemas/DeviceDataSchema';
 import { CoreModule } from '../core/CoreModule';
 import { DeviceTypes, ArpScanRecord } from './consts';
 import { IpDefiner } from './components/IpDefiner';
 import { MQTTMediator } from '../core/MQTTMediator';
+import { MQTTHandlerService } from './services/MQTTHandlerService';
 
 const { scanOptions } = config.get('device');
 @Module({
@@ -34,6 +35,7 @@ const { scanOptions } = config.get('device');
     DeviceDataService,
     DeviceCrudService,
     DeviceControlService,
+    MQTTHandlerService,
     DeviceRepository,
     DeviceDataRepository,
   ],
@@ -55,6 +57,7 @@ export class DeviceModule {
   constructor(
     private readonly mqttMediator: MQTTMediator,
     private readonly deviceRepository: DeviceRepository,
+    private readonly MQTTHandlerService: MQTTHandlerService,
   ) {
     this.startIpDefining();
     this.subscribeToMQTT();
@@ -63,18 +66,27 @@ export class DeviceModule {
   public async subscribeToMQTT() {
     const devices = await this.deviceRepository.getAll();
     for (const device of devices) {
-      const { deviceId: topic, type } = device;
-
-      if (!this.MQTTReceivers.includes(type)) {
+      if (!this.MQTTReceivers.includes(device.type)) {
         continue;
       }
 
+      const topic = this.getTopicName(device);
+
+      // NOTE: test device
+      // MAC: 80:7d:3a:7f:ee:08
+      // DeviceId: esp1
       this.mqttMediator.subscribe(topic, (err: any) => {
         if (err) {
-          console.log(`MQTT Error on topic ${topic}`, err);
+          console.log(`[MQTT] Error on topic ${topic}`, err);
         }
+        this.mqttMediator.onMessage((topic, payload) => {
+          console.log('[MQTT] Received Message:', topic, payload.toString());
+          this.MQTTHandlerService.handle(topic, payload);
+        });
       });
-      console.warn(`Device ${type} subscribed to MQTT`);
+      console.warn(
+        `[MQTT] Device [${device.type}] ${device.deviceId} subscribed to ${topic}`,
+      );
     }
   }
 
@@ -93,9 +105,11 @@ export class DeviceModule {
     }, scanOptions.interval);
   }
 
-  private async getDefinedDevices(
-    devices: DeviceDocument[],
-  ): Promise<DeviceDocument[]> {
+  private getTopicName(device: Device) {
+    return `${device.locationId}-${device.type}`;
+  }
+
+  private async getDefinedDevices(devices: Device[]): Promise<Device[]> {
     const macAddresses = devices.map(({ mac }) => mac);
     const arpResults: ArpScanRecord[] = await this.ipDefiner.filterOnlineByMac(
       macAddresses,

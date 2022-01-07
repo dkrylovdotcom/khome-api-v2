@@ -8,7 +8,7 @@ export type DeviceState = string; // TODO:: state in JSON
 
 @Schema()
 export class Device {
-  @Prop({ required: true, trim: true })
+  @Prop({ unique: true, required: true, trim: true })
   deviceId: string;
 
   @Prop()

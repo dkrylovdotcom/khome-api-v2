@@ -16,19 +16,19 @@ export class DeviceDataController {
     return HttpResponse.successData({ lastValues });
   }
 
-  @Get()
+  @Get('/:locationId')
   public async getAllByLocation(@Param('locationId') locationId: string) {
     const items = await this.deviceDataRepository.findAllByLocation(locationId);
     return HttpResponse.successData({ items });
   }
 
-  @Get()
+  @Get('/:deviceId')
   public async findAllByDevice(@Param('deviceId') deviceId: string) {
     const items = await this.deviceDataRepository.findAllByDevice(deviceId);
     return HttpResponse.successData({ items });
   }
 
-  @Delete()
+  @Delete('/:deviceId')
   public async deleteForDevice(@Param('deviceId') deviceId: string) {
     await this.deviceDataService.removeForDevice(deviceId);
     return HttpResponse.successDeleted();

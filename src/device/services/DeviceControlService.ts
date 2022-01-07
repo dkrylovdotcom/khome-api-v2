@@ -4,7 +4,7 @@ import { IpDefiner } from '../components/IpDefiner';
 import { DeviceRepository } from '../repositories/DeviceRepository';
 import { MQTTMediator } from '../../core/MQTTMediator';
 import { CommandPayloadDto, ArpScanRecord, DeviceTypes } from '../consts';
-import { DeviceDocument } from '../schemas/DeviceSchema';
+import { Device } from '../schemas/DeviceSchema';
 
 const { scanOptions } = config.get('device');
 
@@ -37,6 +37,7 @@ export class DeviceControlService {
       await this.deviceRepository.save(device);
     } catch (e) {
       console.log(e);
+      throw e;
     }
   }
 
@@ -73,9 +74,7 @@ export class DeviceControlService {
     // }, scanOptions.interval);
   }
 
-  private async getDefinedDevices(
-    devices: DeviceDocument[],
-  ): Promise<DeviceDocument[]> {
+  private async getDefinedDevices(devices: Device[]): Promise<Device[]> {
     const macAddresses = devices.map(({ mac }) => mac);
     const arpResults: ArpScanRecord[] = await this.ipDefiner.filterOnlineByMac(
       macAddresses,

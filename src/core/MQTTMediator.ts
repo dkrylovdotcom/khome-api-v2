@@ -3,7 +3,7 @@ import * as config from 'config';
 import * as mqtt from 'mqtt';
 import { CommandPayloadDto } from '../device/dto/CommandPayloadDto';
 
-const { mqttServer } = config.get('app');
+const { mqttHost } = config.get('app');
 
 type OnMessagePayload = any;
 
@@ -12,7 +12,7 @@ export class MQTTMediator {
   private readonly client: mqtt.MqttClient;
 
   constructor() {
-    this.client = mqtt.connect(`${mqttServer.protocol}${mqttServer.host}`);
+    this.client = mqtt.connect(mqttHost);
 
     this.onConnect(() => {
       console.info('MQTT connected');

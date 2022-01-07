@@ -39,11 +39,11 @@ export class DeviceController {
 
   @Post()
   public async create(@Body() createDeviceDto: CreateDeviceDto) {
-    await this.deviceCrudService.create(createDeviceDto);
-    return HttpResponse.successData();
+    const device = await this.deviceCrudService.create(createDeviceDto);
+    return HttpResponse.successData({ deviceId: device.id });
   }
 
-  @Patch()
+  @Patch('/:id')
   public async update(
     @Param('id') id: string,
     @Body() updateDeviceDto: UpdateDeviceDto,
@@ -52,7 +52,7 @@ export class DeviceController {
     return HttpResponse.successUpdated();
   }
 
-  @Delete()
+  @Delete('/:id')
   public async delete(@Param('id') id: string) {
     await this.deviceCrudService.remove(id);
     return HttpResponse.successDeleted();

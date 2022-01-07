@@ -9,7 +9,7 @@ export class DeviceRepository {
     @InjectModel(Device.name) private deviceModel: Model<DeviceDocument>,
   ) {}
 
-  public async getAll(): Promise<DeviceDocument[]> {
+  public async getAll(): Promise<Device[]> {
     return await this.deviceModel.find().exec();
   }
 
@@ -17,21 +17,26 @@ export class DeviceRepository {
     return await this.deviceModel.find({ locationId }).exec();
   }
 
-  public async get(id: string): Promise<DeviceDocument> {
-    const item = await this.deviceModel.findById({ id });
+  public async findByDeviceId(deviceId: string): Promise<Device | null> {
+    return await this.deviceModel.findOne({ deviceId });
+  }
+
+  public async get(id: string): Promise<Device> {
+    const item = await this.deviceModel.findById(id);
     if (!item) throw new Error('Device not found');
     return item;
   }
 
-  public async save(device: DeviceDocument) {
-    device.save();
+  public async save(device: Device) {
+    this.saveAll([device]);
   }
 
-  public async saveAll(items: DeviceDocument[]) {
-    this.deviceModel.bulkSave(items);
+  public async saveAll(items: Device[]) {
+    this.deviceModel.bulkSave(items as DeviceDocument[]);
   }
 
-  public async remove(device: DeviceDocument) {
-    await device.remove();
+  public async remove(device: Device) {
+    await (device as DeviceDocument).remove();
+    // this.deviceModel.remove();
   }
 }
