@@ -10,7 +10,7 @@ import {
 import { LocationService } from '../services/LocationService';
 import { LocationRepository } from '../repositories/LocationRepository';
 import { HttpResponse } from '../../core/helpers/HttpResponse';
-import { CreateLocationDto, UpdateLocationDto } from '../dto/LocationDto';
+import { CreateLocationDto, UpdateLocationDto } from '../dto';
 
 @Controller('location')
 export class LocationController {

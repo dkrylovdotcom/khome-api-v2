@@ -10,7 +10,7 @@ import {
 import { HttpResponse } from '../../core/helpers/HttpResponse';
 import { DeviceRepository } from '../repositories/DeviceRepository';
 import { DeviceCrudService } from '../services';
-import { UpdateDeviceDto, CreateDeviceDto } from '../dto/DeviceDto';
+import { UpdateDeviceDto, CreateDeviceDto } from '../dto';
 
 @Controller('device')
 export class DeviceController {

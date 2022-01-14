@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as config from 'config';
 import * as mqtt from 'mqtt';
-import { CommandPayloadDto } from '../device/dto/CommandPayloadDto';
+import { CommandPayloadDto } from '../device/dto';
 
 const { mqttHost } = config.get('app');
 

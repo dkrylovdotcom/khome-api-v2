@@ -2,8 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { HttpResponse } from '../../core/helpers/HttpResponse';
 import { AuthService } from '../services/AuthService';
 import { UserManageService } from '../services/UserManageService';
-import { CreateUserDto } from '../dto/UserDto';
-import { AuthDto } from '../dto/AuthDto';
+import { CreateUserDto, AuthDto } from '../dto';
 
 @Controller('user')
 export class UserController {

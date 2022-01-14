@@ -1,5 +1,5 @@
 import { DeviceTypes } from '.';
-import { CommandPayloadDto } from '../dto/CommandPayloadDto';
+import { CommandPayloadDto } from '../dto';
 
 export type Command = {
   type: DeviceTypes;

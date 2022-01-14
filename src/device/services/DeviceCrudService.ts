@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Device, DeviceDocument } from '../schemas/DeviceSchema';
 import { DeviceRepository } from '../repositories/DeviceRepository';
-import { CreateDeviceDto, UpdateDeviceDto } from '../dto/DeviceDto';
+import { CreateDeviceDto, UpdateDeviceDto } from '../dto';
 
 Injectable();
 export class DeviceCrudService {

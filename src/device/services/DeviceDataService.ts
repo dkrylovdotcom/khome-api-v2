@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { DeviceData, DeviceDataDocument } from '../schemas/DeviceDataSchema';
 import { DeviceRepository } from '../repositories/DeviceRepository';
 import { DeviceDataRepository } from '../repositories/DeviceDataRepository';
-import { DeviceDataCreateDto } from '../dto/DeviceDataDto';
+import { DeviceDataCreateDto } from '../dto';
 
 Injectable();
 export class DeviceDataService {
