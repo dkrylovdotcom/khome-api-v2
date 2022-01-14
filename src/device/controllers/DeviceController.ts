@@ -25,7 +25,7 @@ export class DeviceController {
     return HttpResponse.successData({ items });
   }
 
-  @Get('/:locationId')
+  @Get('/by-location/:locationId')
   public async findAllByLocation(@Param('locationId') locationId: string) {
     const items = await this.deviceRepository.findAllByLocation(locationId);
     return HttpResponse.successData({ items });
