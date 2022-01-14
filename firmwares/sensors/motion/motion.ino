@@ -43,6 +43,7 @@ void loop() {
   if(alarmCount >= maxAlarmCount) {
     alarmCount = 0;
     publishMessage(deviceId, "1");
+    Serial.println("Motion detected!");
   }
   
   delay(loopDelay);
@@ -86,8 +87,6 @@ void setup() {
 }
 
 void publishMessage(String deviceId, String value) {
-  Serial.println("Motion detected!");
-    
   DynamicJsonDocument doc(200);
   char jsonString[200];
   doc["deviceId"] = deviceId;
