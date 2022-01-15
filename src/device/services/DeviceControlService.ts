@@ -10,7 +10,10 @@ const { scanOptions } = config.get('device');
 
 Injectable();
 export class DeviceControlService {
-  private readonly MQTTReceivers = [DeviceTypes.MOTION_SENSOR];
+  private readonly MQTTReceivers = [
+    DeviceTypes.MOTION_SENSOR,
+    DeviceTypes.TEMPERATURE_SENSOR,
+  ];
   private readonly ipDefiner = new IpDefiner(
     scanOptions.pingTimeout,
     scanOptions.pingCount,
