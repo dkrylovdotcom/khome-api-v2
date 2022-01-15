@@ -9,7 +9,7 @@ const char* password = "q12345";
 const char* deviceId = "room1-device2";
 const char* mqttHost = "192.168.0.5";
 const int mqttPort = 1883;
-const char* mqttTopic = "61d2bfd71d3d6e69f6f53141-TEMPERATURE";
+const char* mqttTopic = "61d2bfd71d3d6e69f6f53141-TEMPERATURE_SENSOR";
 
 #define DHTTYPE DHT11
 #define DHTPIN  4
@@ -71,7 +71,7 @@ void publishMessage(String deviceId, String value) {
 
 void loop() {
   if (isOnline == false) {
-    continue;
+    return;
   }
   if (!client.connected()) {
     reconnect();

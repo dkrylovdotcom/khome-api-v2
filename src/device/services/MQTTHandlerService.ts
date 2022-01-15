@@ -11,19 +11,33 @@ export class MQTTHandlerService {
   ) {}
 
   public async handle(topic: any, payload: any) {
+    try {
+      const json = this.getObject(payload);
+      console.log(topic, json);
+      const { deviceId, value } = json;
+      const device = await this.deviceRepository.findByDeviceId(deviceId);
+
+      if (!device) {
+        throw new Error(`Device "${deviceId}" doesn't exist`);
+      }
+
+      switch (device.type) {
+        case DeviceTypes.TEMPERATURE_SENSOR:
+        case DeviceTypes.MOTION_SENSOR:
+          return await this.deviceDataService.create(deviceId, value);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  private getObject(payload: any) {
     const json = JSON.parse(payload.toString());
-    console.log(topic, json);
-    const { deviceId, value } = json;
-    const device = await this.deviceRepository.findByDeviceId(deviceId);
-
-    if (!device) {
-      throw new Error(`Device "${deviceId}" doesn't exist`);
+    try {
+      json.value = JSON.parse(json.value);
+    } catch (e) {
+      console.log(e);
     }
-
-    switch (device.type) {
-      case DeviceTypes.TEMPERATURE_SENSOR:
-      case DeviceTypes.MOTION_SENSOR:
-        return await this.deviceDataService.create(deviceId, value);
-    }
+    return json;
   }
 }

@@ -48,7 +48,10 @@ export class DeviceModule {
   // }
 
   // TODO:: All code above should be used through DeviceControlService
-  private readonly MQTTReceivers = [DeviceTypes.MOTION_SENSOR];
+  private readonly MQTTReceivers = [
+    DeviceTypes.MOTION_SENSOR,
+    DeviceTypes.TEMPERATURE_SENSOR,
+  ];
   private readonly ipDefiner = new IpDefiner(
     scanOptions.pingTimeout,
     scanOptions.pingCount,
@@ -73,7 +76,7 @@ export class DeviceModule {
       const topic = this.getTopicName(device);
 
       // NOTE: test device
-      // MAC: 80:7d:3a:7f:ee:08
+      // MAC: 80:7d:3a:7f:ee:80
       // DeviceId: esp1
       this.mqttMediator.subscribe(topic, (err: any) => {
         if (err) {
