@@ -7,7 +7,7 @@ import { CommandPayloadDto } from '../consts';
 export class DeviceCommandController {
   constructor(private readonly deviceControlService: DeviceControlService) {}
 
-  @Post()
+  @Post('execute')
   public async commandExecute(@Body() commandPayloadDto: CommandPayloadDto) {
     await this.deviceControlService.commandExecute(commandPayloadDto);
     return HttpResponse.successCreated('Command successfully executed');
