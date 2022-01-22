@@ -9,5 +9,7 @@ export class CommandPayloadDto {
   deviceId: string;
 
   @ApiProperty()
-  state: DeviceState;
+  payload: {
+    state: DeviceState;
+  };
 }

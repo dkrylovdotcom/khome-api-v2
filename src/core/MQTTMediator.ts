@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as config from 'config';
 import * as mqtt from 'mqtt';
-import { CommandPayloadDto } from '../device/dto';
 
 const { mqttHost } = config.get('app');
 
@@ -40,10 +39,9 @@ export class MQTTMediator {
     this.client.on('message', func);
   }
 
-  public publish(commandPayload: CommandPayloadDto) {
-    const topic = commandPayload.deviceId;
-    console.log('publish topic', topic);
-    const jsonString = JSON.stringify(commandPayload);
+  public publish(topic: string, command: any) {
+    const jsonString = JSON.stringify(command);
+    console.log('publish', topic, command);
     this.client.publish(topic, jsonString);
   }
 

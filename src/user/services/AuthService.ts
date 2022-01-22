@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import * as config from 'config';
 import * as jwt from 'jsonwebtoken';
@@ -9,7 +9,10 @@ const { webServer } = config.get('app');
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    @Inject(UserRepository)
+    private readonly userRepository: UserRepository,
+  ) {}
 
   public async auth(login: string, password: string) {
     const user = await this.userRepository.getByLogin(login);

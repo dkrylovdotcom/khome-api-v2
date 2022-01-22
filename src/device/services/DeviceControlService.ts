@@ -37,8 +37,12 @@ export class DeviceControlService {
         throw new Error(`Device "${device.deviceId}" is offline`);
       }
 
-      payload.deviceId = device.deviceId;
-      this.mqttMediator.publish(payload);
+      const command = {
+        deviceId: device.deviceId,
+        state: payload.payload.state,
+      };
+      const topic = this.getTopicName(device);
+      this.mqttMediator.publish(topic, command);
 
       // TODO:: save state - device.state = { ...device.state, ...payload.state };
       await this.deviceRepository.save(device);
@@ -58,7 +62,7 @@ export class DeviceControlService {
       const topic = this.getTopicName(device);
 
       // NOTE: test device
-      // MAC: 80:7d:3a:7f:ee:80
+      // MAC: 80:7d:3a:7f:ee:8 ? 0
       // DeviceId: esp1
       this.mqttMediator.subscribe(topic, (err: any) => {
         if (err) {
@@ -90,6 +94,7 @@ export class DeviceControlService {
     }, scanOptions.interval);
   }
 
+  // TODO:: this method duplicated
   private getTopicName(device: Device) {
     return `${device.locationId}-${device.type}`;
   }

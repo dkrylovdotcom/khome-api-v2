@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import * as argon2 from 'argon2';
 import { Model } from 'mongoose';
@@ -9,7 +9,9 @@ import { CreateUserDto } from '../dto';
 @Injectable()
 export class UserManageService {
   constructor(
-    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
+    @Inject(UserRepository)
     private readonly userRepository: UserRepository,
   ) {}
 

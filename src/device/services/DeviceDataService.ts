@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DeviceData, DeviceDataDocument } from '../schemas/DeviceDataSchema';
@@ -11,7 +11,9 @@ export class DeviceDataService {
   constructor(
     @InjectModel(DeviceData.name)
     private readonly deviceDataModel: Model<DeviceDataDocument>,
+    @Inject(DeviceRepository)
     private readonly deviceRepository: DeviceRepository,
+    @Inject(DeviceDataRepository)
     private readonly deviceDataRepository: DeviceDataRepository,
   ) {}
 
