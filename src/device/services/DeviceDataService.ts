@@ -18,7 +18,10 @@ export class DeviceDataService {
   ) {}
 
   public async create(deviceId: string, value: number) {
-    await this.deviceRepository.get(deviceId);
+    const device = await this.deviceRepository.findByDeviceId(deviceId);
+    if (!device) {
+      throw new Error('Device not found');
+    }
     const deviceDataCreateDto = new DeviceDataCreateDto();
     deviceDataCreateDto.deviceId = deviceId;
     deviceDataCreateDto.value = value;

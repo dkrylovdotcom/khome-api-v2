@@ -26,7 +26,7 @@ export class MQTTHandlerService {
       switch (device.type) {
         case DeviceTypes.TEMPERATURE_SENSOR:
         case DeviceTypes.MOTION_SENSOR:
-          return await this.deviceDataService.create(deviceId, value);
+          return await this.deviceDataService.create(device.deviceId, value);
       }
     } catch (e) {
       console.log(e);

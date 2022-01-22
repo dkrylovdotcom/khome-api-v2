@@ -9,10 +9,7 @@ export class DeviceData {
   deviceId: string;
 
   @Prop()
-  value: number;
-
-  @Prop({ type: Date, required: true, default: Date.now })
-  lastUpdatedAt: Date;
+  value: string;
 
   @Prop({ type: Date, required: true, default: Date.now })
   createdAt: Date;
