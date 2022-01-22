@@ -44,7 +44,7 @@ export class DeviceControlService {
       const topic = this.getTopicName(device);
       this.mqttMediator.publish(topic, command);
 
-      // TODO:: save state - device.state = { ...device.state, ...payload.state };
+      device.state = payload.payload.state;
       await this.deviceRepository.save(device);
     } catch (e) {
       console.log(e);
