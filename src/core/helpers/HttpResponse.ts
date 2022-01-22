@@ -10,6 +10,10 @@ export class HttpResponse {
     };
   }
 
+  public static successMessage(message: string): ControllerResponse {
+    return HttpResponse.success(message);
+  }
+
   public static successData(data: any = {}): ControllerResponse {
     return HttpResponse.success(undefined, data);
   }

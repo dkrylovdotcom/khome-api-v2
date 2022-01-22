@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { DeviceDataService } from './DeviceDataService';
 import { DeviceTypes } from '../consts';
 import { DeviceRepository } from '../repositories/DeviceRepository';
@@ -6,7 +6,9 @@ import { DeviceRepository } from '../repositories/DeviceRepository';
 Injectable();
 export class MQTTHandlerService {
   constructor(
+    @Inject(DeviceRepository)
     private readonly deviceRepository: DeviceRepository,
+    @Inject(DeviceDataService)
     private readonly deviceDataService: DeviceDataService,
   ) {}
 

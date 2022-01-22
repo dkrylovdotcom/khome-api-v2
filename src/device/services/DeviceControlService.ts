@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import * as config from 'config';
 import { IpDefiner } from '../components/IpDefiner';
 import { DeviceRepository } from '../repositories/DeviceRepository';
 import { MQTTMediator } from '../../core/MQTTMediator';
+import { MQTTHandlerService } from './MQTTHandlerService';
 import { CommandPayloadDto, ArpScanRecord, DeviceTypes } from '../consts';
 import { Device } from '../schemas/DeviceSchema';
 
@@ -20,9 +21,12 @@ export class DeviceControlService {
   );
 
   constructor(
-    // TODO:: These classes doesn't inject, \__([]-[])__/
+    @Inject(MQTTMediator)
     private readonly mqttMediator: MQTTMediator,
+    @Inject(DeviceRepository)
     private readonly deviceRepository: DeviceRepository,
+    @Inject(MQTTHandlerService)
+    private readonly MQTTHandlerService: MQTTHandlerService,
   ) {}
 
   public async commandExecute(payload: CommandPayloadDto) {
@@ -47,34 +51,47 @@ export class DeviceControlService {
   public async subscribeToMQTT() {
     const devices = await this.deviceRepository.getAll();
     for (const device of devices) {
-      const { deviceId: topic, type } = device;
-
-      if (!this.MQTTReceivers.includes(type)) {
+      if (!this.MQTTReceivers.includes(device.type)) {
         continue;
       }
 
+      const topic = this.getTopicName(device);
+
+      // NOTE: test device
+      // MAC: 80:7d:3a:7f:ee:80
+      // DeviceId: esp1
       this.mqttMediator.subscribe(topic, (err: any) => {
         if (err) {
-          console.log(`MQTT Error on topic ${topic}`, err);
+          console.log(`[MQTT] Error on topic ${topic}`, err);
         }
+        this.mqttMediator.onMessage((topic, payload) => {
+          console.log('[MQTT] Received Message:', topic, payload.toString());
+          this.MQTTHandlerService.handle(topic, payload);
+        });
       });
-      console.warn(`Device ${type} subscribed to MQTT`);
+      console.warn(
+        `[MQTT] Device [${device.type}] ${device.deviceId} subscribed to ${topic}`,
+      );
     }
   }
 
-  public async startIpDefining() {
+  public startIpDefining() {
     let isInProgress = false;
     // TODO:: unkomment
-    // setInterval(async () => {
-    if (isInProgress) {
-      return;
-    }
-    isInProgress = true;
-    const devices = await this.deviceRepository.getAll();
-    const definedDevices = await this.getDefinedDevices(devices);
-    await this.deviceRepository.saveAll(definedDevices);
-    isInProgress = false;
-    // }, scanOptions.interval);
+    setInterval(async () => {
+      if (isInProgress) {
+        return;
+      }
+      isInProgress = true;
+      const devices = await this.deviceRepository.getAll();
+      const definedDevices = await this.getDefinedDevices(devices);
+      await this.deviceRepository.saveAll(definedDevices);
+      isInProgress = false;
+    }, scanOptions.interval);
+  }
+
+  private getTopicName(device: Device) {
+    return `${device.locationId}-${device.type}`;
   }
 
   private async getDefinedDevices(devices: Device[]): Promise<Device[]> {
