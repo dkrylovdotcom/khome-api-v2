@@ -14,6 +14,7 @@ export class DeviceControlService {
   private readonly MQTTReceivers = [
     DeviceTypes.MOTION_SENSOR,
     DeviceTypes.TEMPERATURE_SENSOR,
+    DeviceTypes.TOUCH_SENSOR,
   ];
   private readonly ipDefiner = new IpDefiner(
     scanOptions.pingTimeout,
@@ -53,35 +54,16 @@ export class DeviceControlService {
   }
 
   public async subscribeToMQTT() {
-    const devices = await this.deviceRepository.getAll();
-    for (const device of devices) {
-      if (!this.MQTTReceivers.includes(device.type)) {
-        continue;
-      }
+    await this.subscribeAllTopics();
 
-      const topic = this.getTopicName(device);
-
-      // NOTE: test device
-      // MAC: 80:7d:3a:7f:ee:8 ? 0
-      // DeviceId: esp1
-      this.mqttMediator.subscribe(topic, (err: any) => {
-        if (err) {
-          console.log(`[MQTT] Error on topic ${topic}`, err);
-        }
-        this.mqttMediator.onMessage((topic, payload) => {
-          console.log('[MQTT] Received Message:', topic, payload.toString());
-          this.MQTTHandlerService.handle(topic, payload);
-        });
-      });
-      console.warn(
-        `[MQTT] Device [${device.type}] ${device.deviceId} subscribed to ${topic}`,
-      );
-    }
+    this.mqttMediator.onMessage(async (topic, payload) => {
+      console.log('[MQTT] Received Message:', topic, payload.toString());
+      await this.MQTTHandlerService.handle(topic, payload);
+    });
   }
 
   public startIpDefining() {
     let isInProgress = false;
-    // TODO:: unkomment
     setInterval(async () => {
       if (isInProgress) {
         return;
@@ -92,11 +74,6 @@ export class DeviceControlService {
       await this.deviceRepository.saveAll(definedDevices);
       isInProgress = false;
     }, scanOptions.interval);
-  }
-
-  // TODO:: this method duplicated
-  private getTopicName(device: Device) {
-    return `${device.locationId}-${device.type}`;
   }
 
   private async getDefinedDevices(devices: Device[]): Promise<Device[]> {
@@ -117,5 +94,33 @@ export class DeviceControlService {
       }
     }
     return definedDevices;
+  }
+
+  // TODO:: this method duplicated
+  private getTopicName(device: Device) {
+    return `${device.locationId}-${device.type}`;
+  }
+
+  private async subscribeAllTopics() {
+    const devices = await this.deviceRepository.getAll();
+    for (const device of devices) {
+      if (!this.MQTTReceivers.includes(device.type)) {
+        continue;
+      }
+
+      const topic = this.getTopicName(device);
+
+      // NOTE: test device
+      // MAC: 80:7d:3a:7f:ee:8 ? 0
+      // DeviceId: esp1
+      this.mqttMediator.subscribe(topic, (err: any) => {
+        if (err) {
+          console.log(`[MQTT] Error on topic ${topic}`, err);
+        }
+        console.info(
+          `[MQTT] Device [${device.type}] ${device.deviceId} subscribed to ${topic}`,
+        );
+      });
+    }
   }
 }

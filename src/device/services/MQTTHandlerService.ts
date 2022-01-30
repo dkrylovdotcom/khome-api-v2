@@ -1,5 +1,5 @@
-import { Injectable, Inject } from '@nestjs/common';
-import { DeviceDataService } from './DeviceDataService';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { DeviceDataService, DeviceLogicService } from './';
 import { DeviceTypes } from '../consts';
 import { DeviceRepository } from '../repositories/DeviceRepository';
 
@@ -10,6 +10,8 @@ export class MQTTHandlerService {
     private readonly deviceRepository: DeviceRepository,
     @Inject(DeviceDataService)
     private readonly deviceDataService: DeviceDataService,
+    @Inject(forwardRef(() => DeviceLogicService))
+    private readonly deviceLogicService: DeviceLogicService,
   ) {}
 
   public async handle(topic: any, payload: any) {
@@ -28,6 +30,8 @@ export class MQTTHandlerService {
         case DeviceTypes.MOTION_SENSOR:
           return await this.deviceDataService.create(device.deviceId, value);
       }
+
+      await this.deviceLogicService.handleLogic(device.deviceId, value);
     } catch (e) {
       console.log(e);
     }

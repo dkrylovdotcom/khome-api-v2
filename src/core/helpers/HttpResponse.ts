@@ -2,6 +2,18 @@ import { ControllerResponse } from '../consts';
 import { HttpStatus } from '@nestjs/common';
 
 export class HttpResponse {
+  public static error(
+    status: number,
+    message: string,
+    data: any = {},
+  ): ControllerResponse {
+    return {
+      status,
+      message,
+      data,
+    };
+  }
+
   public static successCreated(data: any = {}): ControllerResponse {
     return {
       status: HttpStatus.CREATED,

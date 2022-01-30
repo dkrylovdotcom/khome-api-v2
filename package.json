@@ -33,6 +33,7 @@
     "config": "^3.3.6",
     "crypto": "^1.0.1",
     "dotenv": "^10.0.0",
+    "json-logic-js": "^2.0.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.0.12",
     "mqtt": "^4.2.8",
