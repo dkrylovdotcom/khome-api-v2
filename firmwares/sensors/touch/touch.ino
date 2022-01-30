@@ -17,12 +17,14 @@ static const uint8_t D10  = 1;
  
 // Settings
 const char* ssid = "KHOME";
-const char* password = "q12345";
-const char* deviceId = "room1-device3";
+const char* password = "qQ1!wW2@";
+const char* deviceId = "room1-device5";
 const char* mqttHost = "192.168.0.5";
 const int mqttPort = 1883;
-const char* mqttTopic = "61d2bfd71d3d6e69f6f53141-LIGHT_DEVICE";
-const byte ledPin = LED_BUILTIN;
+const char* mqttTopic = "61d2bfd71d3d6e69f6f53141-TOUCH_SENSOR";
+int mqttPubQos = 2;
+int currentState = false;
+bool mqttRetain = true;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -32,13 +34,33 @@ void loop() {
     reconnect();
   }
   client.loop();
+
+  int data = digitalRead(D2);
+  if (data == 1){
+    if (!currentState) {
+      currentState = true;
+      Serial.println("Нажата");
+
+      String message = getMessage(currentState);
+      Serial.println("Publish: " + message);
+      publishMessage(deviceId, message);
+    }
+  } else{
+    if (currentState) {
+      currentState = false;
+      Serial.println("Не нажата");
+
+      String message = getMessage(currentState);
+      Serial.println("Publish: " + message);
+      publishMessage(deviceId, message);
+    }
+  }
 }
  
 void setup() {
   Serial.begin(9600);
   client.setServer(mqttHost, mqttPort);
-  client.setCallback(callback);
-  pinMode(D2, OUTPUT);
+  pinMode(D2, INPUT);
   connectToWifi();
 }
 
@@ -62,7 +84,6 @@ void reconnect() {
     // Attempt to connect
     if (client.connect(deviceId)) {
       Serial.println("connected");
-      client.subscribe(mqttTopic);
     } else {
       Serial.print("failed, rc=");
       Serial.print(client.state());
@@ -73,27 +94,22 @@ void reconnect() {
   }
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
-  DynamicJsonDocument doc(1024);
-  auto error = deserializeJson(doc, payload);
-  if (error) {
-    Serial.print(F("deserializeJson() failed with code "));
-    Serial.println(error.c_str());
-    return;
-  }
-  const char* deviceId = doc["deviceId"];
-  const bool state = doc["value"];
-  
-  Serial.print("Message arrived [");
-  Serial.print(topic);
-  Serial.print("] ");
+void publishMessage(String deviceId, String value) {
+  DynamicJsonDocument doc(200);
+  char jsonString[200];
+  doc["deviceId"] = deviceId;
+  doc["value"] = value;
+  serializeJson(doc, jsonString);
+  client.publish(mqttTopic, jsonString, mqttRetain);
+  // client.publish(mqttTopic, (const uint8_t*)jsonString, mqttPubQos, mqttRetain);
+  Serial.println("Published!");
+}
 
-  if(value) {
-    digitalWrite(D2, LOW);
-    Serial.print("state true");
-  } else {
-    digitalWrite(D2, HIGH);
-    Serial.print("state false");
-  }
-  Serial.println();
+String getMessage(bool state) {
+  String message = "";
+  message.concat("{");
+  message.concat("\"state\":");
+  message.concat(state);
+  message.concat("}");
+  return message;
 }

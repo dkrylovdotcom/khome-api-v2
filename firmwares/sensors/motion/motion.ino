@@ -55,7 +55,7 @@ void reconnect() {
     Serial.print("Attempting MQTT connection...");
     
     // Attempt to connect
-    if (client.connect("ESP8266 Client")) {
+    if (client.connect(deviceId)) {
       Serial.println("connected");
     } else {
       Serial.print("failed, rc=");
