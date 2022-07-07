@@ -1,19 +1,22 @@
-// TODO:: looks pretty strange
-import dotenv = require('dotenv');
-dotenv.config();
-
-// TODO:: looks pretty strange
-process.env['NODE_CONFIG_DIR'] = __dirname + '/../config/';
-
-import * as config from 'config';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './AppModule';
-
-const { ip, port } = config.get('app.webServer');
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'debug', 'log'],
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
+
+  const config = app.get(ConfigService);
 
   const options = new DocumentBuilder()
     .setTitle('HOME API')
@@ -23,7 +26,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(port, ip);
+  await app.listen(config.get('SERVER_PORT', 3000), config.get('SERVER_HOST'));
 }
 
 bootstrap();

@@ -1,69 +1,111 @@
-import { Injectable, Inject } from '@nestjs/common';
-import * as config from 'config';
+import { Injectable, Inject, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 import { IpDefiner } from '../components/IpDefiner';
 import { DeviceRepository } from '../repositories/DeviceRepository';
-import { MQTTMediator } from '../../core/MQTTMediator';
+import { MQTTConnector } from '../components/MQTTConnector';
 import { MQTTHandlerService } from './MQTTHandlerService';
-import { CommandPayloadDto, ArpScanRecord, DeviceTypes } from '../consts';
+import { ArpScanRecord, DeviceTypes } from '../consts';
 import { Device } from '../schemas/DeviceSchema';
+import { DeviceTopic } from '../helpers/DeviceTopic';
 
-const { scanOptions } = config.get('device');
-
+// TODO:: This service looks ambigous, mqtt + ipDefining + cron?
 Injectable();
-export class DeviceControlService {
+export class DeviceControlService implements OnModuleInit {
   private readonly MQTTReceivers = [
     DeviceTypes.MOTION_SENSOR,
     DeviceTypes.TEMPERATURE_SENSOR,
     DeviceTypes.TOUCH_SENSOR,
   ];
-  private readonly ipDefiner = new IpDefiner(
-    scanOptions.pingTimeout,
-    scanOptions.pingCount,
-  );
 
   constructor(
-    @Inject(MQTTMediator)
-    private readonly mqttMediator: MQTTMediator,
+    @Inject(MQTTConnector)
+    private readonly MQTTConnector: MQTTConnector,
     @Inject(DeviceRepository)
     private readonly deviceRepository: DeviceRepository,
     @Inject(MQTTHandlerService)
     private readonly MQTTHandlerService: MQTTHandlerService,
+    @Inject(IpDefiner)
+    private readonly ipDefiner: IpDefiner,
+    private readonly logger = new Logger(DeviceControlService.name),
+    private readonly configService: ConfigService,
+    private schedulerRegistry: SchedulerRegistry,
   ) {}
 
-  public async commandExecute(payload: CommandPayloadDto) {
-    try {
-      const device = await this.deviceRepository.get(payload.deviceId);
+  onModuleInit() {
+    this.startIpDefining();
+    this.subscribeToMQTT();
+    this.startCronForAll();
+  }
 
-      if (!device.isOnline) {
-        throw new Error(`Device "${device.deviceId}" is offline`);
+  public async startCronForAll() {
+    const devices = await this.deviceRepository.getAll();
+    for (const device of devices) {
+      if (device.cron) {
+        this.addCronJob(
+          device.deviceId,
+          device.cron.timePattern,
+          device.cron.function,
+        );
       }
-
-      const command = {
-        deviceId: device.deviceId,
-        state: payload.payload.state,
-      };
-      const topic = this.getTopicName(device);
-      this.mqttMediator.publish(topic, command);
-
-      device.state = payload.payload.state;
-      await this.deviceRepository.save(device);
-    } catch (e) {
-      console.log(e);
-      throw e;
     }
   }
 
-  public async subscribeToMQTT() {
+  private addCronJob(name: string, timePattern: string, func: any) {
+    const job = new CronJob(timePattern, () => {
+      this.logger.log(`time for job ${name} to run!`);
+      func();
+    });
+
+    this.schedulerRegistry.addCronJob(name, job);
+    job.start();
+
+    this.logger.log(`job ${name} added for timePattern ${timePattern}!`);
+  }
+
+  private async subscribeToMQTT() {
     await this.subscribeAllTopics();
 
-    this.mqttMediator.onMessage(async (topic, payload) => {
-      console.log('[MQTT] Received Message:', topic, payload.toString());
+    this.MQTTConnector.onMessage(async (topic, payload) => {
+      this.logger.log(
+        `[MQTT: ${topic}] Received Message`,
+        undefined,
+        payload.toString(),
+      );
       await this.MQTTHandlerService.handle(topic, payload);
     });
   }
 
-  public startIpDefining() {
+  private async subscribeAllTopics() {
+    const devices = await this.deviceRepository.getAll();
+    for (const device of devices) {
+      const topic = DeviceTopic.get(device);
+      if (!this.MQTTReceivers.includes(device.type)) {
+        this.logger.warn(
+          `[MQTT: ${topic}] device ${device.deviceId} is not MQTTReceiver`,
+        );
+        continue;
+      }
+
+      // NOTE: test device
+      // MAC: 80:7d:3a:7f:ee:8 ? 0
+      // DeviceId: esp1
+      this.MQTTConnector.subscribe(topic, (err: any) => {
+        if (err) {
+          this.logger.error(`[MQTT: ${topic}] Error on topic`, err);
+          return;
+        }
+        this.logger.log(
+          `[MQTT: ${topic}] Device [${device.type}] ${device.deviceId} subscribed`,
+        );
+      });
+    }
+  }
+
+  private startIpDefining() {
     let isInProgress = false;
+    const scanInterval = this.configService.get('DEVICE_SCAN_INTERVAL');
     setInterval(async () => {
       if (isInProgress) {
         return;
@@ -73,7 +115,7 @@ export class DeviceControlService {
       const definedDevices = await this.getDefinedDevices(devices);
       await this.deviceRepository.saveAll(definedDevices);
       isInProgress = false;
-    }, scanOptions.interval);
+    }, scanInterval);
   }
 
   private async getDefinedDevices(devices: Device[]): Promise<Device[]> {
@@ -94,33 +136,5 @@ export class DeviceControlService {
       }
     }
     return definedDevices;
-  }
-
-  // TODO:: this method duplicated
-  private getTopicName(device: Device) {
-    return `${device.locationId}-${device.type}`;
-  }
-
-  private async subscribeAllTopics() {
-    const devices = await this.deviceRepository.getAll();
-    for (const device of devices) {
-      if (!this.MQTTReceivers.includes(device.type)) {
-        continue;
-      }
-
-      const topic = this.getTopicName(device);
-
-      // NOTE: test device
-      // MAC: 80:7d:3a:7f:ee:8 ? 0
-      // DeviceId: esp1
-      this.mqttMediator.subscribe(topic, (err: any) => {
-        if (err) {
-          console.log(`[MQTT] Error on topic ${topic}`, err);
-        }
-        console.info(
-          `[MQTT] Device [${device.type}] ${device.deviceId} subscribed to ${topic}`,
-        );
-      });
-    }
   }
 }

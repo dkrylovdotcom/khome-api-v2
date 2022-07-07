@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Device, DeviceDocument } from '../schemas/DeviceSchema';
+import { DeviceNotFoundException } from '../exceptions/DeviceNotFoundException';
 
 Injectable();
 export class DeviceRepository {
@@ -23,7 +24,7 @@ export class DeviceRepository {
 
   public async get(id: string): Promise<Device> {
     const item = await this.deviceModel.findById(id);
-    if (!item) throw new Error('Device not found');
+    if (!item) throw new DeviceNotFoundException();
     return item;
   }
 

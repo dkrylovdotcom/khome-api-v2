@@ -28,8 +28,10 @@ export class DeviceCrudService {
     item.deviceId = updateDeviceDto.deviceId || item.deviceId;
     item.mac = updateDeviceDto.mac || item.mac;
     item.type = updateDeviceDto.type || item.type;
-    item.minCriticalValue = updateDeviceDto.minCriticalValue || item.minCriticalValue;
-    item.maxCriticalValue = updateDeviceDto.maxCriticalValue || item.maxCriticalValue;
+    item.minCriticalValue =
+      updateDeviceDto.minCriticalValue || item.minCriticalValue;
+    item.maxCriticalValue =
+      updateDeviceDto.maxCriticalValue || item.maxCriticalValue;
     await this.deviceRepository.save(item);
   }
 

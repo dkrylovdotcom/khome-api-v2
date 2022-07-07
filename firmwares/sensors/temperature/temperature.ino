@@ -9,7 +9,7 @@ const char* password = "q12345";
 const char* deviceId = "room1-device2";
 const char* mqttHost = "192.168.0.5";
 const int mqttPort = 1883;
-const char* mqttTopic = "61d2bfd71d3d6e69f6f53141-TEMPERATURE_SENSOR";
+const char* mqttTopic = "TEMPERATURE_SENSOR-61d2bfd71d3d6e69f6f53141";
 
 #define DHTTYPE DHT11
 #define DHTPIN  4

@@ -1,29 +1,35 @@
-import { Injectable } from '@nestjs/common';
-import * as config from 'config';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as mqtt from 'mqtt';
-
-const { mqttHost } = config.get('app');
 
 type OnMessagePayload = any;
 
 @Injectable()
-export class MQTTMediator {
+export class MQTTConnector {
   private readonly client: mqtt.MqttClient;
 
-  constructor() {
-    this.client = mqtt.connect(mqttHost);
+  constructor(
+    private readonly logger = new Logger(MQTTConnector.name),
+    private readonly configService: ConfigService,
+  ) {
+    const mqttUri = this.configService.get('MQTT_HOST');
+    this.client = mqtt.connect(mqttUri);
 
     this.onConnect(() => {
-      console.info('MQTT connected');
+      this.logger.log(`[MQTT] Connected]`);
     });
 
     this.onDisconnect(() => {
-      console.info('MQTT disconnected');
+      console.info(`[MQTT] Disconnected`);
       // this.client.reconnect(); ??
     });
 
     this.onMessage((topic: string, payload: OnMessagePayload) => {
-      console.log('MQTTMessagesHandler', topic, payload);
+      this.logger.log(
+        `[MQTT: ${topic}] OnMessage`,
+        undefined,
+        payload.toString(),
+      );
     });
   }
 
@@ -41,7 +47,7 @@ export class MQTTMediator {
 
   public publish(topic: string, command: any) {
     const jsonString = JSON.stringify(command);
-    console.log('publish', topic, command);
+    this.logger.log(`[MQTT: ${topic}] Publish command`, undefined, jsonString);
     this.client.publish(topic, jsonString);
   }
 

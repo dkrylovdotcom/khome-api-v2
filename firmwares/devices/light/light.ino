@@ -21,7 +21,7 @@ const char* password = "q12345";
 const char* deviceId = "room1-device3";
 const char* mqttHost = "192.168.0.5";
 const int mqttPort = 1883;
-const char* mqttTopic = "61d2bfd71d3d6e69f6f53141-LIGHT_DEVICE";
+const char* mqttTopic = "LIGHT_DEVICE-61d2bfd71d3d6e69f6f53141";
 const byte ledPin = LED_BUILTIN;
 
 WiFiClient espClient;
@@ -81,7 +81,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println(error.c_str());
     return;
   }
-  const char* deviceId = doc["deviceId"];
+  const char* payloadDeviceId = doc["deviceId"];
+  if (payloadDeviceId != deviceId) {
+    return;
+  }
   const bool state = doc["value"];
   
   Serial.print("Message arrived [");

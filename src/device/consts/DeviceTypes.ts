@@ -4,4 +4,5 @@ export enum DeviceTypes {
   TOUCH_SENSOR = 'TOUCH_SENSOR',
   ROSETTE = 'ROSETTE',
   LIGHT = 'LIGHT',
+  QR_SCANNER = 'QR_SCANNER',
 }

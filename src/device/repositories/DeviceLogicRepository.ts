@@ -6,7 +6,8 @@ import { DeviceLogic, DeviceLogicDocument } from '../schemas/DeviceLogicSchema';
 Injectable();
 export class DeviceLogicRepository {
   constructor(
-    @InjectModel(DeviceLogic.name) private deviceLogicModel: Model<DeviceLogicDocument>,
+    @InjectModel(DeviceLogic.name)
+    private deviceLogicModel: Model<DeviceLogicDocument>,
   ) {}
 
   public async getAll(): Promise<DeviceLogic[]> {

@@ -3,8 +3,11 @@ import { Document } from 'mongoose';
 import { DeviceTypes } from '../../device/consts/DeviceTypes';
 
 export type DeviceDocument = Device & Document;
-
 export type DeviceState = string; // TODO:: state in JSON
+export class DeviceCron {
+  public timePattern: string;
+  public function: string;
+}
 
 @Schema()
 export class Device {
@@ -17,7 +20,7 @@ export class Device {
   @Prop({ required: true, trim: true })
   type: DeviceTypes;
 
-  @Prop({ type: String, required: true, trim: true })
+  @Prop({ required: true, trim: true })
   apiKey: string;
 
   @Prop({ required: true, trim: true })
@@ -33,15 +36,18 @@ export class Device {
   state: DeviceState;
 
   @Prop()
+  cron: DeviceCron;
+
+  @Prop()
   minCriticalValue?: number;
 
   @Prop()
   maxCriticalValue?: number;
 
-  @Prop({ type: Date, required: true, default: Date.now })
+  @Prop({ required: true, default: Date.now })
   lastUpdatedAt: Date;
 
-  @Prop({ type: Date, required: true, default: Date.now })
+  @Prop({ required: true, default: Date.now })
   createdAt: Date;
 }
 

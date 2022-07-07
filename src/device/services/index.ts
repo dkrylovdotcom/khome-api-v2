@@ -1,15 +1,7 @@
-import { DeviceCrudService } from './DeviceCrudService';
-import { DeviceDataService } from './DeviceDataService';
-import { DeviceControlService } from './DeviceControlService';
-import { DeviceLogicCrudService } from './DeviceLogicCrudService';
-import { DeviceLogicService } from './DeviceLogicService';
-import { MQTTHandlerService } from './MQTTHandlerService';
-
-export {
-  DeviceDataService,
-  DeviceCrudService,
-  DeviceControlService,
-  DeviceLogicCrudService,
-  DeviceLogicService,
-  MQTTHandlerService,
-};
+export * from './DeviceCrudService';
+export * from './DeviceDataService';
+export * from './DeviceControlService';
+export * from './DeviceLogicCrudService';
+export * from './DeviceLogicService';
+export * from './MQTTHandlerService';
+export * from './CommandExecuteService';

@@ -21,7 +21,7 @@ const char* password = "12345";
 const char* deviceId = "room1-device4";
 const char* mqttHost = "192.168.0.5";
 const int mqttPort = 1883;
-const char* mqttTopic = "61d2bfd71d3d6e69f6f53141-ROSETTE_DEVICE";
+const char* mqttTopic = "ROSETTE_DEVICE-61d2bfd71d3d6e69f6f53141";
 const int rosette1 = D0;
 const int rosette2 = D5;
 const int rosette3 = D6;
@@ -96,7 +96,10 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print(topic);
   Serial.print("] ");
 
-  const char* deviceId = doc["deviceId"];
+  const char* payloadDeviceId = doc["deviceId"];
+  if (payloadDeviceId != deviceId) {
+    return;
+  }
   const bool isRosette1On = doc["value"][0];
   const bool isRosette2On = doc["value"][1];
   const bool isRosette3On = doc["value"][2];
