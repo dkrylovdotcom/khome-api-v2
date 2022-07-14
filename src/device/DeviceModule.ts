@@ -7,15 +7,16 @@ import { IpDefiner, TimeCode, MQTTConnector } from './components';
 import {
   DeviceDataService,
   DeviceCrudService,
-  DeviceControlService,
+  DeviceSubscribeService,
+  DeviceIpDefinitionService,
   DeviceLogicCrudService,
   DeviceLogicService,
+  DeviceCronService,
   CommandExecuteService,
   MQTTHandlerService,
 } from './services';
 import { Device, DeviceSchema } from './schemas/DeviceSchema';
 import { DeviceData, DeviceDataSchema } from './schemas/DeviceDataSchema';
-import { CoreModule } from '../core/CoreModule';
 import { DeviceLogicController } from './controllers/DeviceLogicController';
 import {
   DeviceRepository,
@@ -31,7 +32,6 @@ import { DeviceLogic, DeviceLogicSchema } from './schemas/DeviceLogicSchema';
       { name: DeviceData.name, schema: DeviceDataSchema },
       { name: DeviceLogic.name, schema: DeviceLogicSchema },
     ]),
-    CoreModule,
   ],
   controllers: [
     DeviceController,
@@ -42,7 +42,9 @@ import { DeviceLogic, DeviceLogicSchema } from './schemas/DeviceLogicSchema';
   providers: [
     DeviceDataService,
     DeviceCrudService,
-    DeviceControlService,
+    DeviceSubscribeService,
+    DeviceIpDefinitionService,
+    DeviceCronService,
     DeviceLogicCrudService,
     DeviceLogicService,
     MQTTHandlerService,

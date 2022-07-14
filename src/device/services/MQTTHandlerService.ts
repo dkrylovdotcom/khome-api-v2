@@ -5,6 +5,8 @@ import { DeviceRepository } from '../repositories/DeviceRepository';
 
 Injectable();
 export class MQTTHandlerService {
+  private readonly logger = new Logger(MQTTHandlerService.name);
+
   constructor(
     @Inject(DeviceRepository)
     private readonly deviceRepository: DeviceRepository,
@@ -12,7 +14,6 @@ export class MQTTHandlerService {
     private readonly deviceDataService: DeviceDataService,
     @Inject(forwardRef(() => DeviceLogicService)) // NOTE:: forwardRef() to prevent dependency cycle
     private readonly deviceLogicService: DeviceLogicService,
-    private readonly logger = new Logger(MQTTHandlerService.name),
   ) {}
 
   public async handle(topic: any, payload: any) {

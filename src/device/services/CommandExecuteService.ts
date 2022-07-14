@@ -6,12 +6,13 @@ import { DeviceTopic } from '../helpers/DeviceTopic';
 
 Injectable();
 export class CommandExecuteService {
+  private readonly logger = new Logger(CommandExecuteService.name);
+
   constructor(
     @Inject(MQTTConnector)
     private readonly MQTTConnector: MQTTConnector,
     @Inject(DeviceRepository)
     private readonly deviceRepository: DeviceRepository,
-    private readonly logger = new Logger(CommandExecuteService.name),
   ) {}
 
   public async execute(payload: CommandPayloadDto) {

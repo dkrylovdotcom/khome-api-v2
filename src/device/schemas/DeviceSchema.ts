@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 import { DeviceTypes } from '../../device/consts/DeviceTypes';
 
 export type DeviceDocument = Device & Document;
-export type DeviceState = string; // TODO:: state in JSON
+export type DeviceState = string;
 export class DeviceCron {
   public timePattern: string;
   public function: string;

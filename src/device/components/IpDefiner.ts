@@ -10,7 +10,6 @@ export class IpDefiner {
   private readonly pingTimeout: number;
 
   constructor(private readonly configService: ConfigService) {
-    // TODO:: config types
     this.pingCount = this.configService.get('DEVICE_PING_TIMEOUT') as number;
     this.pingTimeout = this.configService.get('DEVICE_PING_COUNT') as number;
   }

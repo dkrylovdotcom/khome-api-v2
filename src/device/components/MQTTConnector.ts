@@ -7,11 +7,9 @@ type OnMessagePayload = any;
 @Injectable()
 export class MQTTConnector {
   private readonly client: mqtt.MqttClient;
+  private readonly logger = new Logger(MQTTConnector.name);
 
-  constructor(
-    private readonly logger = new Logger(MQTTConnector.name),
-    private readonly configService: ConfigService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     const mqttUri = this.configService.get('MQTT_HOST');
     this.client = mqtt.connect(mqttUri);
 

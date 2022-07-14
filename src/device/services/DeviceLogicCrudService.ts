@@ -15,14 +15,12 @@ export class DeviceLogicCrudService {
   ) {}
 
   public async create(createDeviceLogicDto: CreateDeviceLogicDto) {
-    // TODO:: this.validateLogic(createDeviceLogicDto.logic);
     const deviceLogic = new this.deviceLogicModel(createDeviceLogicDto);
     await this.deviceLogicRepository.save(deviceLogic);
     return deviceLogic;
   }
 
   public async update(id: string, updateDeviceLogicDto: UpdateDeviceLogicDto) {
-    // TODO:: this.validateLogic(createDeviceLogicDto.logic);
     const item = await this.deviceLogicRepository.get(id);
     item.observableDeviceId = updateDeviceLogicDto.observableDeviceId;
     item.triggerDeviceIds = updateDeviceLogicDto.triggerDeviceIds;

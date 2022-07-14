@@ -1,5 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import * as jsonLogic from 'json-logic-js';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const jsonLogic = require('json-logic-js');
 import { DeviceLogicRepository, DeviceRepository } from '../repositories';
 import { MQTTConnector, TimeCode } from '../components';
 import { DeviceTopic } from '../helpers/DeviceTopic';
@@ -8,6 +9,8 @@ import { DeviceLogic } from '../schemas/DeviceLogicSchema';
 
 Injectable();
 export class DeviceLogicService {
+  private readonly logger = new Logger(DeviceLogicService.name);
+
   constructor(
     @Inject(MQTTConnector)
     private readonly MQTTConnector: MQTTConnector,
@@ -17,7 +20,6 @@ export class DeviceLogicService {
     private readonly deviceRepository: DeviceRepository,
     @Inject(TimeCode)
     private readonly timeCode: TimeCode,
-    private readonly logger = new Logger(DeviceLogicService.name),
   ) {}
 
   public async handleLogic(observableDeviceId: string, value: any) {
@@ -42,12 +44,21 @@ export class DeviceLogicService {
     }
 
     switch (observableDevice.type) {
+      case DeviceTypes.TEMPERATURE_SENSOR:
+      case DeviceTypes.MOTION_SENSOR:
+      case DeviceTypes.TOUCH_SENSOR:
+        const isLogicActivated = jsonLogic.apply(deviceLogic.logic);
+        if (isLogicActivated) {
+          await this.triggerDevices(deviceLogic);
+        }
+        break;
       case DeviceTypes.QR_SCANNER:
         const code = this.timeCode.getCode();
         const isCodeValid = jsonLogic.apply({ '==': [code, value] });
         if (isCodeValid) {
           await this.triggerDevices(deviceLogic);
         }
+        break;
     }
   }
 
