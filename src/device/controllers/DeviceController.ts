@@ -22,19 +22,19 @@ export class DeviceController {
   @Get('all')
   public async getAll() {
     const items = await this.deviceRepository.getAll();
-    return HttpResponse.successData({ items });
+    return HttpResponse.successData(items);
   }
 
   @Get('/by-location/:locationId')
   public async findAllByLocation(@Param('locationId') locationId: string) {
     const items = await this.deviceRepository.findAllByLocation(locationId);
-    return HttpResponse.successData({ items });
+    return HttpResponse.successData(items);
   }
 
   @Get('/:id')
   public async get(@Param('id') id: string) {
     const item = await this.deviceRepository.get(id);
-    return HttpResponse.successData({ item });
+    return HttpResponse.successData(item);
   }
 
   @Post()

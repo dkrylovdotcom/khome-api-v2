@@ -22,13 +22,13 @@ export class LocationController {
   @Get('all')
   public async getAll() {
     const items = await this.locationRepository.getAll();
-    return HttpResponse.successData({ items });
+    return HttpResponse.successData(items);
   }
 
   @Get()
   public async get(@Param('id') id: string) {
     const item = await this.locationRepository.get(id);
-    return HttpResponse.successData({ item });
+    return HttpResponse.successData(item);
   }
 
   @Post()

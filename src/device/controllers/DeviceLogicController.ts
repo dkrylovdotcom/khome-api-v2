@@ -23,7 +23,7 @@ export class DeviceLogicController {
   @Get('all')
   public async getAll() {
     const items = await this.deviceLogicRepository.getAll();
-    return HttpResponse.successData({ items });
+    return HttpResponse.successData(items);
   }
 
   @Get('/by-observable/:observableDeviceId')
@@ -33,7 +33,7 @@ export class DeviceLogicController {
     const items = await this.deviceLogicRepository.findByObservableDeviceId(
       observableDeviceId,
     );
-    return HttpResponse.successData({ items });
+    return HttpResponse.successData(items);
   }
 
   @Post()

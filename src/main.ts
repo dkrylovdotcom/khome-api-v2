@@ -19,8 +19,8 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   const options = new DocumentBuilder()
-    .setTitle('HOME API')
-    .setDescription(`HOME API`)
+    .setTitle('KHOME API')
+    .setDescription(`KHOME API`)
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, options);
