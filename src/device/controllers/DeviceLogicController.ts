@@ -7,12 +7,14 @@ import {
   Param,
   Post,
 } from '@nestjs/common';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { HttpResponse } from '../../core/helpers/HttpResponse';
 import { DeviceLogicRepository } from '../repositories/DeviceLogicRepository';
 import { DeviceLogicCrudService } from '../services';
 import { CreateDeviceLogicDto } from '../dto/CreateDeviceLogicDto';
 import { UpdateDeviceLogicDto } from '../dto/UpdateDeviceLogicDto';
 
+@ApiTags('Device Logic')
 @Controller('device-logic')
 export class DeviceLogicController {
   constructor(
@@ -20,12 +22,14 @@ export class DeviceLogicController {
     private readonly deviceLogicRepository: DeviceLogicRepository,
   ) {}
 
+  @ApiOperation({ summary: 'Get all DeviceLogic' })
   @Get('all')
   public async getAll() {
     const items = await this.deviceLogicRepository.getAll();
     return HttpResponse.successData(items);
   }
 
+  @ApiOperation({ summary: 'Get DeviceLogic by Device ID' })
   @Get('/by-observable/:observableDeviceId')
   public async findAllByLocation(
     @Param('observableDeviceId') observableDeviceId: string,
@@ -36,6 +40,7 @@ export class DeviceLogicController {
     return HttpResponse.successData(items);
   }
 
+  @ApiOperation({ summary: 'Create DeviceLogic' })
   @Post()
   public async create(@Body() createDeviceLogicDto: CreateDeviceLogicDto) {
     try {
@@ -46,6 +51,7 @@ export class DeviceLogicController {
     }
   }
 
+  @ApiOperation({ summary: 'Update DeviceLogic' })
   @Patch('/:id')
   public async update(
     @Param('id') id: string,
@@ -55,6 +61,7 @@ export class DeviceLogicController {
     return HttpResponse.successUpdated();
   }
 
+  @ApiOperation({ summary: 'Delete DeviceLogic' })
   @Delete('/:id')
   public async delete(@Param('id') id: string) {
     await this.deviceLogicCrudService.remove(id);
