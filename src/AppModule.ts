@@ -21,8 +21,8 @@ import { UserModule } from './user/UserModule';
       inject: [ConfigService],
     }),
     ThrottlerModule.forRoot({
-      ttl: 60,
-      limit: 10,
+      ttl: 30,
+      limit: 50,
     }),
     ScheduleModule.forRoot(),
     UserModule,
