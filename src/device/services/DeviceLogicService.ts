@@ -1,4 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
+// import jsonLogic from 'json-logic-js';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const jsonLogic = require('json-logic-js');
 import { DeviceLogicRepository, DeviceRepository } from '../repositories';
@@ -7,6 +8,8 @@ import { DeviceTopic } from '../helpers/DeviceTopic';
 import { DeviceTypes } from '../consts';
 import { DeviceLogic } from '../schemas/DeviceLogicSchema';
 import { Device } from '../schemas/DeviceSchema';
+
+export type DeviceLogicValue = any;
 
 Injectable();
 export class DeviceLogicService {
@@ -23,7 +26,10 @@ export class DeviceLogicService {
     private readonly timeCode: TimeCode,
   ) {}
 
-  public async handleLogic(observableDeviceId: string, value: any) {
+  public async handleLogic(
+    observableDeviceId: string,
+    value: DeviceLogicValue,
+  ) {
     const deviceLogic =
       await this.deviceLogicRepository.findByObservableDeviceId(
         observableDeviceId,
@@ -48,7 +54,7 @@ export class DeviceLogicService {
       case DeviceTypes.TEMPERATURE_SENSOR:
       case DeviceTypes.MOTION_SENSOR:
       case DeviceTypes.TOUCH_SENSOR:
-        const isLogicActivated = jsonLogic.apply(deviceLogic.logic);
+        const isLogicActivated = jsonLogic.apply(deviceLogic.logic, value);
         if (isLogicActivated) {
           await this.triggerDevices(deviceLogic);
         }
