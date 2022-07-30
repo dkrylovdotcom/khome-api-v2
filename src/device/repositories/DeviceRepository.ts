@@ -14,6 +14,16 @@ export class DeviceRepository {
     return await this.deviceModel.find().exec();
   }
 
+  public async findAllByDeviceId(deviceIds: string[]): Promise<Device[]> {
+    return await this.deviceModel
+      .find({
+        deviceId: {
+          $in: deviceIds,
+        },
+      })
+      .exec();
+  }
+
   public async findAllByLocation(locationId: string): Promise<Device[]> {
     return await this.deviceModel.find({ locationId }).exec();
   }

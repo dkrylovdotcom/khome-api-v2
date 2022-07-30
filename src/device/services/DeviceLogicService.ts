@@ -6,6 +6,7 @@ import { MQTTConnector, TimeCode } from '../components';
 import { DeviceTopic } from '../helpers/DeviceTopic';
 import { DeviceTypes } from '../consts';
 import { DeviceLogic } from '../schemas/DeviceLogicSchema';
+import { Device } from '../schemas/DeviceSchema';
 
 Injectable();
 export class DeviceLogicService {
@@ -63,15 +64,18 @@ export class DeviceLogicService {
   }
 
   private async triggerDevices(deviceLogic: DeviceLogic) {
-    for (const deviceId of deviceLogic.triggerDeviceIds) {
-      const device = await this.deviceRepository.findByDeviceId(deviceId);
+    const { triggerDeviceIds, triggerSendValue } = deviceLogic;
+    const devicesMap = await this.getMappedDevices(triggerDeviceIds);
+    for (const deviceId of triggerDeviceIds) {
+      const device = devicesMap.get(deviceId);
       if (!device) {
+        this.logger.error(`Triggered device ${deviceId} not found`);
         return;
       }
       // if (!device.isOnline) {
       //   return;
       // }
-      const commandValue = JSON.parse(deviceLogic.triggerSendValue);
+      const commandValue = JSON.parse(triggerSendValue);
 
       // NOTE:: just hack to test
       // commandValue[0] = value.state;
@@ -83,5 +87,14 @@ export class DeviceLogicService {
       const topic = DeviceTopic.get(device);
       this.MQTTConnector.publish(topic, command);
     }
+  }
+
+  private async getMappedDevices(deviceIds: string[]) {
+    const devices = await this.deviceRepository.findAllByDeviceId(deviceIds);
+    const map = new Map<string, Device>();
+    for (const device of devices) {
+      map.set(device.deviceId, device);
+    }
+    return map;
   }
 }
