@@ -19,7 +19,9 @@ export class CommandExecuteService {
     const device = await this.deviceRepository.get(payload.deviceId);
 
     if (!device.isOnline) {
-      throw new Error(device.deviceId);
+      throw new Error(
+        `Device ${device.deviceId} is offline. Can't send the command`,
+      );
     }
 
     const topic = DeviceTopic.get(device);
