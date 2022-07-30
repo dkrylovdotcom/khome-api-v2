@@ -37,7 +37,6 @@
     "crypto": "1.0.1",
     "json-logic-js": "2.0.2",
     "jsonwebtoken": "8.5.1",
-    "md5": "2.3.0",
     "mongoose": "6.0.12",
     "mqtt": "4.2.8",
     "ping": "0.4.1",
@@ -45,7 +44,8 @@
     "reflect-metadata": "0.1.13",
     "rimraf": "3.0.2",
     "rxjs": "7.4.0",
-    "swagger-ui-express": "4.1.6"
+    "swagger-ui-express": "4.1.6",
+    "totp-generator": "0.0.13"
   },
   "devDependencies": {
     "@nestjs/cli": "8.2.8",
